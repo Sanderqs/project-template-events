@@ -57,3 +57,4 @@ export function EventCard({ event, users }) {
     </Box>
   );
 }
+//fix color in badge
