@@ -1,17 +1,20 @@
 import { Box, Image, Heading, Text, Stack, Badge } from "@chakra-ui/react";
 import { useCategories } from "../context/CategoriesContext";
 
-export function EventCard({ event }) {
+export function EventCard({ event, users }) {
   const { categories } = useCategories();
 
-  // Format start and end times
   const start = new Date(event.startTime).toLocaleString();
   const end = new Date(event.endTime).toLocaleString();
 
-  // Map category IDs to category names
+  // Map category IDs to names
   const eventCategories = event.categoryIds
     .map((id) => categories.find((cat) => cat.id === id)?.name || id)
     .join(", ");
+
+  // Map createdBy ID to user name
+  const creator =
+    users.find((u) => u.id === event.createdBy)?.name || event.createdBy;
 
   return (
     <Box
@@ -29,7 +32,6 @@ export function EventCard({ event }) {
         w="100%"
         h="200px"
       />
-
       <Box p="6">
         <Stack spacing="3">
           <Heading size="md">{event.title}</Heading>
@@ -40,9 +42,8 @@ export function EventCard({ event }) {
           <Text fontSize="sm" color="gray.600">
             Time: {start} - {end}
           </Text>
-
           <Stack direction="row" spacing="2" align="center">
-            <Badge colorScheme="blue">Created by: {event.createdBy}</Badge>
+            <Badge colorScheme="blue">Created by: {creator}</Badge>
             <Badge colorScheme="green">Category: {eventCategories}</Badge>
           </Stack>
         </Stack>

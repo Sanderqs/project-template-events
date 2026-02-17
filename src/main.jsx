@@ -7,7 +7,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Root } from "./components/Root";
 import { EventProvider } from "./context/EventContext";
 import { CategoriesProvider } from "./context/CategoriesContext";
-// import { UsersProvider } from "./context/UsersContext";
+import { UsersProvider } from "./context/UsersContext";
 
 const router = createBrowserRouter([
   {
@@ -32,11 +32,13 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider>
-      <CategoriesProvider>
-        <EventProvider>
-          <RouterProvider router={router} />
-        </EventProvider>
-      </CategoriesProvider>
+      <UsersProvider>
+        <CategoriesProvider>
+          <EventProvider>
+            <RouterProvider router={router} />
+          </EventProvider>
+        </CategoriesProvider>
+      </UsersProvider>
     </Provider>
   </React.StrictMode>,
 );
