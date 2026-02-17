@@ -1,9 +1,12 @@
 import { Box, Image, Heading, Text, Stack, Badge } from "@chakra-ui/react";
 import { useCategories } from "../context/CategoriesContext";
+import { useNavigate } from "react-router-dom";
 
 export function EventCard({ event, users }) {
   const { categories } = useCategories();
+  const navigate = useNavigate();
 
+  // Format start and end times
   const start = new Date(event.startTime).toLocaleString();
   const end = new Date(event.endTime).toLocaleString();
 
@@ -23,7 +26,9 @@ export function EventCard({ event, users }) {
       borderRadius="lg"
       overflow="hidden"
       boxShadow="md"
+      cursor="pointer"
       _hover={{ boxShadow: "xl", transform: "scale(1.02)", transition: "0.3s" }}
+      onClick={() => navigate(`/event/${event.id}`)} // ✅ clickable
     >
       <Image
         src={event.image}
@@ -32,6 +37,7 @@ export function EventCard({ event, users }) {
         w="100%"
         h="200px"
       />
+
       <Box p="6">
         <Stack spacing="3">
           <Heading size="md">{event.title}</Heading>
