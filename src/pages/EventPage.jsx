@@ -8,6 +8,8 @@ import {
   Badge,
   Spinner,
   Center,
+  Button,
+  HStack,
 } from "@chakra-ui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEvents } from "../context/EventContext";
@@ -29,14 +31,17 @@ export function EventPage() {
   const loading = eventsLoading || categoriesLoading || usersLoading;
   const error = eventsError || categoriesError || usersError;
 
-  if (loading)
+  // 🔹 Loading state
+  if (loading) {
     return (
       <Center h="100vh">
         <Spinner size="xl" />
       </Center>
     );
+  }
 
-  if (error)
+  // 🔹 Error state
+  if (error) {
     return (
       <Center h="100vh">
         <Text color="red.500" fontWeight="bold">
@@ -44,38 +49,50 @@ export function EventPage() {
         </Text>
       </Center>
     );
+  }
 
-  const event = events.find((e) => e.id === parseInt(eventId));
+  // 🔹 Find event safely
+  const event = events.find((e) => Number(e.id) === Number(eventId));
 
-  if (!event)
+  if (!event) {
     return (
       <Center h="100vh">
         <Text>Event not found</Text>
       </Center>
     );
+  }
 
-  const creator =
-    users.find((u) => u.id === event.createdBy)?.name || event.createdBy;
+  // 🔹 Safe creator lookup (prevents ID showing)
+  const creatorUser = users.find(
+    (u) => Number(u.id) === Number(event.createdBy)
+  );
+  const creator = creatorUser ? creatorUser.name : "Unknown user";
 
+  // 🔹 Safe category lookup
   const eventCategories = event.categoryIds
-    .map((id) => categories.find((c) => c.id === id)?.name || id)
+    ?.map((id) => {
+      const category = categories.find((c) => c.id === Number(id));
+      return category ? category.name : null;
+    })
+    .filter(Boolean)
     .join(", ");
 
   return (
-    <Center
-      p="6"
-      h="100vh"
-      onClick={() => navigate(-1)} // ✅ click anywhere to go back
-      cursor="pointer"
-    >
+    <Center p={6}>
       <Box
         maxW="2xl"
         w="100%"
         borderWidth="1px"
-        borderRadius="lg"
+        borderRadius="xl"
         overflow="hidden"
-        boxShadow="md"
-      >
+        boxShadow="lg">
+        {/* Back Button */}
+        <Box p={4}>
+          <Button size="sm" onClick={() => navigate(-1)}>
+            ← Back
+          </Button>
+        </Box>
+
         {/* Event Image */}
         <Image
           src={event.image}
@@ -86,21 +103,28 @@ export function EventPage() {
         />
 
         {/* Event Details */}
-        <Box p="6">
-          <Stack spacing="4">
+        <Box p={6}>
+          <Stack spacing={4}>
             <Heading size="lg">{event.title}</Heading>
+
             <Text>{event.description}</Text>
+
             <Text fontSize="sm" color="gray.600">
-              Location: {event.location}
+              📍 Location: {event.location}
             </Text>
+
             <Text fontSize="sm" color="gray.600">
-              Time: {new Date(event.startTime).toLocaleString()} -{" "}
+              🕒 Time: {new Date(event.startTime).toLocaleString()} -{" "}
               {new Date(event.endTime).toLocaleString()}
             </Text>
-            <Stack direction="row" spacing="2">
+
+            <HStack spacing={2} flexWrap="wrap">
               <Badge colorScheme="blue">Created by: {creator}</Badge>
-              <Badge colorScheme="green">Categories: {eventCategories}</Badge>
-            </Stack>
+
+              {eventCategories && (
+                <Badge colorScheme="green">Categories: {eventCategories}</Badge>
+              )}
+            </HStack>
           </Stack>
         </Box>
       </Box>

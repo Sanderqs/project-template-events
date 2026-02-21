@@ -12,12 +12,16 @@ export function EventCard({ event, users }) {
 
   // Map category IDs to names
   const eventCategories = event.categoryIds
-    .map((id) => categories.find((cat) => cat.id === id)?.name || id)
+    .map(
+      (id) =>
+        categories.find((cat) => Number(cat.id) === Number(id))?.name || id
+    )
     .join(", ");
 
   // Map createdBy ID to user name
   const creator =
-    users.find((u) => u.id === event.createdBy)?.name || event.createdBy;
+    users.find((u) => Number(u.id) === Number(event.createdBy))?.name ||
+    event.createdBy;
 
   return (
     <Box

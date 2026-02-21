@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Heading,
@@ -15,8 +15,15 @@ import { SearchBar } from "../components/SearchBar";
 export function EventsPage() {
   const { events } = useEvents();
   const { users } = useUsers();
-  const [visibleEvents, setVisibleEvents] = useState(events);
+
+  const [visibleEvents, setVisibleEvents] = useState([]);
+
   const { open, onOpen, onClose } = useDisclosure();
+
+  // Keep visibleEvents synced when events load
+  useEffect(() => {
+    setVisibleEvents(events);
+  }, [events]);
 
   return (
     <Box p={6}>
@@ -25,11 +32,13 @@ export function EventsPage() {
       <Button colorScheme="teal" mb={6} onClick={onOpen}>
         Add Event
       </Button>
+
       <SearchBar onResult={setVisibleEvents} />
+
       <AddEventModal isOpen={open} onClose={onClose} />
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-        {events.map((event) => (
+        {visibleEvents.map((event) => (
           <EventCard key={event.id} event={event} users={users} />
         ))}
       </SimpleGrid>

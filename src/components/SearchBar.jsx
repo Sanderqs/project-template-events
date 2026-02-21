@@ -7,10 +7,10 @@ import { useEffect, useState } from "react";
 export function SearchBar({ onResult }) {
   const { events } = useEvents();
   const [searchTerm, setSearchTerm] = useState("");
-
+  console.log(searchTerm);
   const filteredEvents = useMemo(() => {
     return events.filter((event) =>
-      event.title.toLowerCase().includes(searchTerm.toLowerCase()),
+      event.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, events]);
 
