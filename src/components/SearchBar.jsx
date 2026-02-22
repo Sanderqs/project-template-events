@@ -10,7 +10,7 @@ export function SearchBar({ onResult }) {
   console.log(searchTerm);
   const filteredEvents = useMemo(() => {
     return events.filter((event) =>
-      event.title.toLowerCase().includes(searchTerm.toLowerCase())
+      event.title.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [searchTerm, events]);
 

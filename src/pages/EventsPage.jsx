@@ -1,44 +1,42 @@
-import { useState, useEffect } from "react";
-import {
-  Box,
-  Heading,
-  Button,
-  SimpleGrid,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { useEvents } from "../context/EventContext";
+import React, { useState, useMemo } from "react";
+import { Box, Heading, SimpleGrid, Stack } from "@chakra-ui/react";
 import { useUsers } from "../context/UsersContext";
 import { EventCard } from "../components/EventCard";
-import { AddEventModal } from "../components/AddEventModal";
+import { CategoryFilter } from "../components/CategoryFilter";
 import { SearchBar } from "../components/SearchBar";
 
 export function EventsPage() {
-  const { events } = useEvents();
   const { users } = useUsers();
 
-  const [visibleEvents, setVisibleEvents] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
-  const { open, onOpen, onClose } = useDisclosure();
+  // Apply category filter on top of search results
+  const finalEvents = useMemo(() => {
+    if (!selectedCategory) return searchResults;
 
-  // Keep visibleEvents synced when events load
-  useEffect(() => {
-    setVisibleEvents(events);
-  }, [events]);
+    return searchResults.filter((event) =>
+      event.categoryIds?.includes(Number(selectedCategory)),
+    );
+  }, [searchResults, selectedCategory]);
 
   return (
     <Box p={6}>
       <Heading mb={6}>All Events</Heading>
 
-      <Button colorScheme="teal" mb={6} onClick={onOpen}>
-        Add Event
-      </Button>
+      <Stack spacing={4} mb={6}>
+        {/* Search Component */}
+        <SearchBar onResult={setSearchResults} />
 
-      <SearchBar onResult={setVisibleEvents} />
-
-      <AddEventModal isOpen={open} onClose={onClose} />
+        {/* Category Filter */}
+        <CategoryFilter
+          selectedCategory={selectedCategory}
+          onChange={setSelectedCategory}
+        />
+      </Stack>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-        {visibleEvents.map((event) => (
+        {finalEvents.map((event) => (
           <EventCard key={event.id} event={event} users={users} />
         ))}
       </SimpleGrid>
