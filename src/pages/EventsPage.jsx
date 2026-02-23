@@ -7,7 +7,7 @@ import { SearchBar } from "../components/SearchBar";
 
 export function EventsPage() {
   const { users } = useUsers();
-
+  const { open, onOpen, onClose } = useDisclosure();
   const [searchResults, setSearchResults] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
 
