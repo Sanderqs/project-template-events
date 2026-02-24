@@ -25,6 +25,10 @@ const router = createBrowserRouter([
         // loader: postLoader,
         // action: addComment,
       },
+      {
+        path: "/add-event",
+        element: <EventsPage />,
+      },
     ],
   },
 ]);
@@ -40,5 +44,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </CategoriesProvider>
       </UsersProvider>
     </Provider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
