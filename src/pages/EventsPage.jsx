@@ -6,13 +6,13 @@ import { CategoryFilter } from "../components/CategoryFilter";
 import { SearchBar } from "../components/SearchBar";
 import { useDisclosure } from "@chakra-ui/react";
 import { AddEventDialog } from "../components/AddEventDialog";
-
+import { useNavigate } from "react-router-dom";
 export function EventsPage() {
   const { users } = useUsers();
   const { open, onOpen, onClose } = useDisclosure();
   const [searchResults, setSearchResults] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-
+  const navigate = useNavigate();
   // Dialog open Close
   useEffect(() => {
     if (location.pathname === "/add-event") {
@@ -30,7 +30,7 @@ export function EventsPage() {
     if (!selectedCategory) return searchResults;
 
     return searchResults.filter((event) =>
-      event.categoryIds?.includes(Number(selectedCategory))
+      event.categoryIds?.includes(Number(selectedCategory)),
     );
   }, [searchResults, selectedCategory]);
 
