@@ -1,5 +1,8 @@
 export const BASE_URL = "http://localhost:3000";
 
+/**
+ * Fetch all events
+ */
 export async function getEvents() {
   try {
     const response = await fetch(`${BASE_URL}/events`);
@@ -8,15 +11,19 @@ export async function getEvents() {
       throw new Error(`Failed to fetch events: ${response.status}`);
     }
 
-    const data = await response.json(); // parse JSON once
-    console.log("Fetched events from API:", data); // ✅ logs actual events
+    const data = await response.json();
+    console.log("Fetched events from API:", data);
 
-    return data; // return parsed JSON for context or components
+    return data;
   } catch (err) {
     console.error("Error in getEvents:", err);
-    throw err; // re-throw so context can handle it
+    throw err;
   }
 }
+
+/**
+ * Fetch all categories
+ */
 export async function getCategories() {
   try {
     const response = await fetch(`${BASE_URL}/categories`);
@@ -35,6 +42,9 @@ export async function getCategories() {
   }
 }
 
+/**
+ * Fetch all users
+ */
 export async function getUsers() {
   try {
     const response = await fetch(`${BASE_URL}/users`);
@@ -49,6 +59,31 @@ export async function getUsers() {
     return data;
   } catch (err) {
     console.error("Error in getUsers:", err);
+    throw err;
+  }
+}
+
+/**
+ * Create a new event
+ * @param {object} event - Event object to create
+ */
+export async function createEvent(eventData) {
+  try {
+    const response = await fetch(`${BASE_URL}/events`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(eventData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create event: ${response.status}`);
+    }
+
+    const newEvent = await response.json();
+    console.log("Created new event:", newEvent);
+    return newEvent;
+  } catch (err) {
+    console.error("Error in createEvent:", err);
     throw err;
   }
 }

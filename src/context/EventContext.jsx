@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getEvents } from "../services/api";
+import { getEvents, createEvent } from "../services/api";
 
 const EventContext = createContext();
 
@@ -11,26 +11,35 @@ export function EventProvider({ children }) {
   useEffect(() => {
     async function loadEvents() {
       try {
-        const data = await getEvents(); // fetch all events
-        setEvents(data); // store all events
+        const data = await getEvents();
+        setEvents(data);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-
     loadEvents();
   }, []);
 
+  // ✅ New function to add event and update context
+  const addEvent = async (eventData) => {
+    try {
+      const newEvent = await createEvent(eventData);
+      setEvents((prev) => [...prev, newEvent]);
+    } catch (err) {
+      console.error("Failed to add event:", err);
+      throw err;
+    }
+  };
+
   return (
-    <EventContext.Provider value={{ events, loading, error }}>
+    <EventContext.Provider value={{ events, loading, error, addEvent }}>
       {children}
     </EventContext.Provider>
   );
 }
 
-// Custom hook for consuming the context
 export function useEvents() {
   return useContext(EventContext);
 }

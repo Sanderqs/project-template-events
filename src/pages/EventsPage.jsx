@@ -7,6 +7,7 @@ import { SearchBar } from "../components/SearchBar";
 import { useDisclosure } from "@chakra-ui/react";
 import { AddEventDialog } from "../components/AddEventDialog";
 import { useNavigate } from "react-router-dom";
+
 export function EventsPage() {
   const { users } = useUsers();
   const { open, onOpen, onClose } = useDisclosure();

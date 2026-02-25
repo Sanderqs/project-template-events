@@ -9,10 +9,13 @@ import {
   Checkbox,
 } from "@chakra-ui/react";
 import { useCategories } from "../context/CategoriesContext";
-import { validateEvent } from "../utils/validateEvents";
+import { useEvents } from "../context/EventContext";
+import { updateFormField, clearFieldError } from "../utils/formUtils";
+import { submitEvent } from "../utils/eventUtils";
 
-export function AddEventDialog({ open, onClose, onSubmit }) {
+export function AddEventDialog({ open, onClose }) {
   const { categories = [] } = useCategories();
+  const { addEvent } = useEvents();
 
   const initialState = {
     title: "",
@@ -27,38 +30,22 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
   const [errors, setErrors] = useState({});
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [field]: undefined,
-    }));
+    setFormData((prev) => updateFormField(prev, field, value));
+    setErrors((prev) => clearFieldError(prev, field));
   };
 
-  const handleSubmit = () => {
-    const validationErrors = validateEvent(formData);
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+  const handleSubmit = async () => {
+    const success = await submitEvent({ formData, addEvent, setErrors });
+    if (success) {
+      setFormData(initialState); // reset form
+      setErrors({});
+      onClose();
     }
-
-    if (onSubmit) {
-      onSubmit(formData);
-    }
-
-    setFormData(initialState);
-    setErrors({});
-    onClose();
   };
 
   return (
     <Dialog.Root open={open} onOpenChange={(e) => !e.open && onClose()}>
       <Dialog.Backdrop />
-
       <Dialog.Positioner>
         <Dialog.Content>
           <Dialog.Header>
@@ -67,7 +54,7 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
 
           <Dialog.Body>
             <Stack gap={4}>
-              {/* TITLE */}
+              {/* Title */}
               <Field.Root invalid={!!errors.title}>
                 <Field.Label>Title</Field.Label>
                 <Input
@@ -79,7 +66,7 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
                 )}
               </Field.Root>
 
-              {/* DESCRIPTION */}
+              {/* Description */}
               <Field.Root invalid={!!errors.description}>
                 <Field.Label>Description</Field.Label>
                 <Textarea
@@ -91,7 +78,7 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
                 )}
               </Field.Root>
 
-              {/* IMAGE */}
+              {/* Image */}
               <Field.Root invalid={!!errors.image}>
                 <Field.Label>Image URL</Field.Label>
                 <Input
@@ -103,7 +90,7 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
                 )}
               </Field.Root>
 
-              {/* START TIME */}
+              {/* Start Time */}
               <Field.Root invalid={!!errors.startTime}>
                 <Field.Label>Start Time</Field.Label>
                 <Input
@@ -116,7 +103,7 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
                 )}
               </Field.Root>
 
-              {/* END TIME */}
+              {/* End Time */}
               <Field.Root invalid={!!errors.endTime}>
                 <Field.Label>End Time</Field.Label>
                 <Input
@@ -129,18 +116,17 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
                 )}
               </Field.Root>
 
-              {/* CATEGORIES */}
+              {/* Categories */}
               <Field.Root invalid={!!errors.categoryIds}>
                 <Field.Label>Categories</Field.Label>
-
                 <Stack>
                   {categories.map((category) => {
                     const value = String(category.id);
-
+                    const checked = formData.categoryIds.includes(value);
                     return (
                       <Checkbox.Root
                         key={category.id}
-                        checked={formData.categoryIds.includes(value)}
+                        checked={checked}
                         onCheckedChange={(details) => {
                           if (details.checked) {
                             handleChange("categoryIds", [
@@ -162,11 +148,15 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
                     );
                   })}
                 </Stack>
-
                 {errors.categoryIds && (
                   <Field.ErrorText>{errors.categoryIds}</Field.ErrorText>
                 )}
               </Field.Root>
+
+              {/* Optional submit error */}
+              {errors.submit && (
+                <Field.ErrorText>{errors.submit}</Field.ErrorText>
+              )}
             </Stack>
           </Dialog.Body>
 
@@ -174,7 +164,6 @@ export function AddEventDialog({ open, onClose, onSubmit }) {
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
-
             <Button colorScheme="teal" onClick={handleSubmit}>
               Create Event
             </Button>
