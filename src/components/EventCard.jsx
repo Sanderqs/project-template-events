@@ -1,8 +1,16 @@
-import { Box, Image, Heading, Text, Stack, Badge } from "@chakra-ui/react";
+import {
+  Box,
+  Image,
+  Heading,
+  Text,
+  Stack,
+  Badge,
+  Button,
+} from "@chakra-ui/react";
 import { useCategories } from "../context/CategoriesContext";
 import { useNavigate } from "react-router-dom";
 
-export function EventCard({ event, users }) {
+export function EventCard({ event, users, onEdit }) {
   const { categories } = useCategories();
   const navigate = useNavigate();
 
@@ -14,7 +22,7 @@ export function EventCard({ event, users }) {
   const eventCategories = event.categoryIds
     .map(
       (id) =>
-        categories.find((cat) => Number(cat.id) === Number(id))?.name || id
+        categories.find((cat) => Number(cat.id) === Number(id))?.name || id,
     )
     .join(", ");
 
@@ -56,6 +64,20 @@ export function EventCard({ event, users }) {
             <Badge colorScheme="blue">Created by: {creator}</Badge>
             <Badge colorScheme="green">Category: {eventCategories}</Badge>
           </Stack>
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click
+              onEdit(event);
+            }}
+            _hover={{
+              boxShadow: "xl",
+              transform: "scale(1.02)",
+              transition: "0.3s",
+            }}
+          >
+            Edit
+          </Button>
         </Stack>
       </Box>
     </Box>

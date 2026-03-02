@@ -11,10 +11,14 @@ import { useNavigate } from "react-router-dom";
 export function EventsPage() {
   const { users } = useUsers();
   const { open, onOpen, onClose } = useDisclosure();
+
   const [searchResults, setSearchResults] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   const navigate = useNavigate();
-  // Dialog open Close
+
+  // Dialog open via route
   useEffect(() => {
     if (location.pathname === "/add-event") {
       onOpen();
@@ -22,11 +26,18 @@ export function EventsPage() {
   }, [location.pathname, onOpen]);
 
   const handleClose = () => {
+    setSelectedEvent(null); // 🔥 reset edit mode
     onClose();
-    navigate("/"); // go back to events page
+    navigate("/");
   };
 
-  // Apply category filter on top of search results
+  // 🔥 NEW: handle edit click
+  const handleEdit = (event) => {
+    setSelectedEvent(event);
+    onOpen();
+  };
+
+  // Apply category filter
   const finalEvents = useMemo(() => {
     if (!selectedCategory) return searchResults;
 
@@ -41,10 +52,8 @@ export function EventsPage() {
         <Heading mb={6}>All Events</Heading>
 
         <Stack spacing={4} mb={6}>
-          {/* Search Component */}
           <SearchBar onResult={setSearchResults} />
 
-          {/* Category Filter */}
           <CategoryFilter
             selectedCategory={selectedCategory}
             onChange={setSelectedCategory}
@@ -53,11 +62,21 @@ export function EventsPage() {
 
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
           {finalEvents.map((event) => (
-            <EventCard key={event.id} event={event} users={users} />
+            <EventCard
+              key={event.id}
+              event={event}
+              users={users}
+              onEdit={handleEdit} // 🔥 only addition here
+            />
           ))}
         </SimpleGrid>
       </Box>
-      <AddEventDialog open={open} onClose={handleClose} />
+
+      <AddEventDialog
+        open={open}
+        onClose={handleClose}
+        eventToEdit={selectedEvent}
+      />
     </>
   );
 }

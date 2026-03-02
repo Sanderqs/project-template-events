@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   Button,
@@ -11,11 +11,13 @@ import {
 import { useCategories } from "../context/CategoriesContext";
 import { useEvents } from "../context/EventContext";
 import { updateFormField, clearFieldError } from "../utils/formUtils";
-import { submitEvent } from "../utils/eventUtils";
+import { validateEvent } from "../utils/validateEvents";
 
-export function AddEventDialog({ open, onClose }) {
+export function AddEventDialog({ open, onClose, eventToEdit = null }) {
   const { categories = [] } = useCategories();
-  const { addEvent } = useEvents();
+  const { addEvent, updateEvent } = useEvents();
+
+  const isEditMode = !!eventToEdit;
 
   const initialState = {
     title: "",
@@ -29,17 +31,41 @@ export function AddEventDialog({ open, onClose }) {
   const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
 
+  // 🔥 When editing, preload event data
+  useEffect(() => {
+    if (eventToEdit) {
+      setFormData({
+        ...eventToEdit,
+        categoryIds: eventToEdit.categoryIds.map(String),
+      });
+    } else {
+      setFormData(initialState);
+    }
+  }, [eventToEdit]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => updateFormField(prev, field, value));
     setErrors((prev) => clearFieldError(prev, field));
   };
 
   const handleSubmit = async () => {
-    const success = await submitEvent({ formData, addEvent, setErrors });
-    if (success) {
-      setFormData(initialState); // reset form
+    const validationErrors = validateEvent(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    try {
+      if (isEditMode) {
+        await updateEvent(formData);
+      } else {
+        await addEvent(formData);
+      }
+
       setErrors({});
       onClose();
+    } catch (err) {
+      console.error("Failed to save event:", err);
     }
   };
 
@@ -49,7 +75,9 @@ export function AddEventDialog({ open, onClose }) {
       <Dialog.Positioner>
         <Dialog.Content>
           <Dialog.Header>
-            <Dialog.Title>Add Event</Dialog.Title>
+            <Dialog.Title>
+              {isEditMode ? "Edit Event" : "Add Event"}
+            </Dialog.Title>
           </Dialog.Header>
 
           <Dialog.Body>
@@ -123,6 +151,7 @@ export function AddEventDialog({ open, onClose }) {
                   {categories.map((category) => {
                     const value = String(category.id);
                     const checked = formData.categoryIds.includes(value);
+
                     return (
                       <Checkbox.Root
                         key={category.id}
@@ -152,11 +181,6 @@ export function AddEventDialog({ open, onClose }) {
                   <Field.ErrorText>{errors.categoryIds}</Field.ErrorText>
                 )}
               </Field.Root>
-
-              {/* Optional submit error */}
-              {errors.submit && (
-                <Field.ErrorText>{errors.submit}</Field.ErrorText>
-              )}
             </Stack>
           </Dialog.Body>
 
@@ -165,7 +189,7 @@ export function AddEventDialog({ open, onClose }) {
               Cancel
             </Button>
             <Button colorScheme="teal" onClick={handleSubmit}>
-              Create Event
+              {isEditMode ? "Save Changes" : "Create Event"}
             </Button>
           </Dialog.Footer>
         </Dialog.Content>

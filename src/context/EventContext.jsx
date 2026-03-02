@@ -33,8 +33,27 @@ export function EventProvider({ children }) {
     }
   };
 
+  async function updateEvent(updatedEvent) {
+    const response = await fetch(
+      `http://localhost:3000/events/${updatedEvent.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedEvent),
+      },
+    );
+
+    const data = await response.json();
+
+    setEvents((prev) =>
+      prev.map((event) => (event.id === data.id ? data : event)),
+    );
+  }
+
   return (
-    <EventContext.Provider value={{ events, loading, error, addEvent }}>
+    <EventContext.Provider
+      value={{ events, loading, error, addEvent, updateEvent }}
+    >
       {children}
     </EventContext.Provider>
   );
