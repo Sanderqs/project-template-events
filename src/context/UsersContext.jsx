@@ -1,36 +1,59 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { getUsers } from "../services/api";
+// context/UsersContext.jsx
+"use client";
 
-const UsersContext = createContext();
+import React, { createContext, useState, useContext, useEffect } from "react";
 
+// 1️⃣ Create context
+const UsersContext = createContext(null);
+
+// 2️⃣ Create hook for easy access
+export const useUsers = () => {
+  const context = useContext(UsersContext);
+  if (!context) {
+    throw new Error("useUsers must be used within a UsersProvider");
+  }
+  return context;
+};
+
+// 3️⃣ Create provider
 export function UsersProvider({ children }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+  // Example: safely load users from localStorage or API
   useEffect(() => {
-    async function loadUsers() {
-      try {
-        const data = await getUsers(); // fetch users from API
-        setUsers(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+    try {
+      const stored = localStorage.getItem("users");
+      if (stored) {
+        setUsers(JSON.parse(stored));
+      } else {
+        setUsers([]); // fallback
       }
+    } catch (err) {
+      console.error("Failed to load users:", err);
+      setUsers([]);
+    } finally {
+      setLoading(false);
     }
-
-    loadUsers();
   }, []);
 
-  return (
-    <UsersContext.Provider value={{ users, loading, error }}>
-      {children}
-    </UsersContext.Provider>
-  );
-}
+  // Optional: provide a function to add a user safely
+  const addUser = (user) => {
+    setUsers((prev) => {
+      const updated = [...prev, user];
+      try {
+        localStorage.setItem("users", JSON.stringify(updated));
+      } catch (err) {
+        console.error("Failed to save users:", err);
+      }
+      return updated;
+    });
+  };
 
-// Custom hook for easy access
-export function useUsers() {
-  return useContext(UsersContext);
+  // 4️⃣ Provide context value
+  const value = { users, loading, addUser };
+
+  return (
+    <UsersContext.Provider value={value}>{children}</UsersContext.Provider>
+  );
 }

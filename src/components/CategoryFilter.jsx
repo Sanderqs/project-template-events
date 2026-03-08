@@ -1,36 +1,69 @@
-import React from "react";
-import { Box, Text, Stack, RadioGroup } from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  FormControl,
+  FormLabel,
+  Stack,
+  Checkbox,
+  CheckboxGroup,
+} from "@chakra-ui/react";
 import { useCategories } from "../context/CategoriesContext";
 
-export function CategoryFilter({ selectedCategory, onChange }) {
+export function CategoryFilter({ selectedCategoryIds = [], onChange }) {
   const { categories = [] } = useCategories();
+  const [selected, setSelected] = useState(selectedCategoryIds.map(String));
+
+  // Sync local state when parent updates
+  useEffect(() => {
+    setSelected(selectedCategoryIds.map(String));
+  }, [selectedCategoryIds]);
+
+  // Handle selection change
+  const handleChange = (vals) => {
+    console.log("Selected category IDs:", vals); // Debugging
+    setSelected(vals);
+    onChange(vals);
+  };
+
+  // Toggle all categories
+  const handleToggleAll = () => {
+    if (selected.length === categories.length) {
+      handleChange([]);
+    } else {
+      handleChange(categories.map((c) => String(c.id)));
+    }
+  };
 
   return (
-    <Box mb={6}>
-      <Text mb={3} fontWeight="bold">
+    <FormControl>
+      <FormLabel fontWeight="bold" mb={3}>
         Filter by Category
-      </Text>
+      </FormLabel>
 
-      <RadioGroup.Root
-        value={selectedCategory}
-        onValueChange={(details) => onChange(details.value)}
-      >
-        <Stack direction="row">
-          <RadioGroup.Item value="">
-            <RadioGroup.ItemHiddenInput />
-            <RadioGroup.ItemIndicator />
-            <RadioGroup.ItemText>All</RadioGroup.ItemText>
-          </RadioGroup.Item>
+      <CheckboxGroup value={selected} onChange={handleChange}>
+        <Stack direction="row" wrap="wrap" spacing={4}>
+          {/* All toggle */}
+          <Checkbox
+            value="all"
+            isChecked={selected.length === categories.length}
+            onChange={handleToggleAll}
+            colorScheme="teal"
+          >
+            All
+          </Checkbox>
 
+          {/* Individual categories */}
           {categories.map((category) => (
-            <RadioGroup.Item key={category.id} value={String(category.id)}>
-              <RadioGroup.ItemHiddenInput />
-              <RadioGroup.ItemIndicator />
-              <RadioGroup.ItemText>{category.name}</RadioGroup.ItemText>
-            </RadioGroup.Item>
+            <Checkbox
+              key={category.id}
+              value={String(category.id)}
+              colorScheme="teal"
+            >
+              {category.name}
+            </Checkbox>
           ))}
         </Stack>
-      </RadioGroup.Root>
-    </Box>
+      </CheckboxGroup>
+    </FormControl>
   );
 }

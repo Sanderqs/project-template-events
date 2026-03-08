@@ -1,41 +1,34 @@
+// main.jsx
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { EventPage } from "./pages/EventPage";
-import { EventsPage } from "./pages/EventsPage";
-import { Provider } from "./components/ui/provider";
+import { ChakraProvider } from "@chakra-ui/react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
 import { Root } from "./components/Root";
-import { EventProvider } from "./context/EventContext";
-import { CategoriesProvider } from "./context/CategoriesContext";
+import { EventsPage } from "./pages/EventsPage";
+import { EventPage } from "./pages/EventPage";
+
 import { UsersProvider } from "./context/UsersContext";
+import { CategoriesProvider } from "./context/CategoriesContext";
+import { EventProvider } from "./context/EventContext";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
     children: [
-      {
-        path: "/",
-        element: <EventsPage />,
-        // loader: postListLoader,
-      },
-      {
-        path: "/event/:eventId",
-        element: <EventPage />,
-        // loader: postLoader,
-        // action: addComment,
-      },
-      {
-        path: "/add-event",
-        element: <EventsPage />,
-      },
+      { path: "/", element: <EventsPage /> },
+      { path: "/event/:eventId", element: <EventPage /> },
+      { path: "/add-event", element: <EventsPage /> },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Provider>
+    {/* ChakraProvider must wrap all Chakra UI components */}
+    <ChakraProvider>
+      {/* Wrap all contexts in stable order */}
       <UsersProvider>
         <CategoriesProvider>
           <EventProvider>
@@ -43,6 +36,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           </EventProvider>
         </CategoriesProvider>
       </UsersProvider>
-    </Provider>
-  </React.StrictMode>
+    </ChakraProvider>
+  </React.StrictMode>,
 );

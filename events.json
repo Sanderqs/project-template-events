@@ -38,7 +38,8 @@
       "description": "Let's play laser tag!",
       "image": "https://wincacademy.github.io/webpages/media/lasertag.jpg",
       "categoryIds": [
-        2
+        "2",
+        "1"
       ],
       "location": "Blinded by the Lights Laser Tag, 15 Main St.",
       "startTime": "2023-04-06T17:46:00.000Z",
@@ -78,7 +79,7 @@
       "description": "Serving up fun on the court.",
       "image": "https://wincacademy.github.io/webpages/media/pexels-floriandoppler-3207474.jpg",
       "categoryIds": [
-        1
+        "1"
       ],
       "location": "Grand Slam Tennis Court",
       "startTime": "2023-03-09T08:00:00.000Z",
@@ -146,16 +147,15 @@
       "id": 10
     },
     {
+      "id": 11,
       "title": "Sample Event",
       "description": "This is a test event to check the dialog functionality.",
       "image": "https://via.placeholder.com/300x200.png?text=Event+Image",
       "startTime": "2026-03-01T10:00",
       "endTime": "2026-03-01T12:00",
       "categoryIds": [
-        "1",
         "2"
-      ],
-      "id": 11
+      ]
     },
     {
       "title": "Sample Event",
